@@ -8,3 +8,7 @@ Today I have created the spirits for the tiles for this game on the sprit dir. Y
 
 
 For the js part, I have created a function called randAry(a,b) which randomly creates a array of size with size a and with randomly placed b number of bombs which is denoted by '1' and rest denoted by '0'.
+
+#### Day One
+
+Today I made a bunch of functions that finds the boundary conditions for the grid. And another function that puts numbers in grid cell which touches the border of bomb\(-1\).

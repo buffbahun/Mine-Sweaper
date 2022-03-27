@@ -7,14 +7,21 @@
 			name="viewport"
 			content="width=device-width, initial-scale=1.0"
 		/>
-		<link rel="stylesheet" src="style.css" />
+		<link rel="stylesheet" href="style.css" />
 		<title>Mine-Sweeper</title>
 	</head>
 	<body>
 		<header>
-			<section></section>
-			<section>Play</section>
-			<section></section>
+			<section>
+				<select name="level" id="level-select">
+					<option value="easy">Easy</option>
+					<option value="medium">Medium</option>
+					<option value="hard">Hard</option>
+			
+				</select>
+			</section>
+			<section class="ply-btn">Play</section>
+			<section>Timer</section>
 		</header>
 		<main>
 			<div class="root"></div>
