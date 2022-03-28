@@ -1,9 +1,8 @@
 // Level constant
 // [row number, column number, number of bombs]
-const easy = [6,13,10];
-const medium = [9,20,35];
-const hard = [13,27,75];
-
+const easy = [10, 10, 10];
+const medium = [16, 16, 40];
+const hard = [30, 16, 99];
 
 // Function to create a array with 0s and -1s for bomb palcement
 // (size of grid, number of bombs) ==> array of the grid with bombs
@@ -129,11 +128,9 @@ function chkBdr(pos, rowNo, colNo) {
 // console.log(chkBdr(+process.argv[2],8,4))
 
 function giveGrid(lvl) {
-
 	let rowNo, colNo, bombNo;
 
-	switch(+lvl) {
-
+	switch (+lvl) {
 		case 0:
 			rowNo = easy[0];
 			colNo = easy[1];
@@ -155,7 +152,7 @@ function giveGrid(lvl) {
 			bombNo = easy[2];
 	}
 
-	ary = randAry(rowNo * colNo,bombNo);
+	ary = randAry(rowNo * colNo, bombNo);
 	return putNum(ary, rowNo, colNo);
 }
 
@@ -163,3 +160,90 @@ function giveGrid(lvl) {
 
 const root = document.querySelector(".root");
 
+function createCell(cellNo) {
+	let divList = [];
+	for (let i = 0; i < cellNo; i++) {
+		divList[i] = document.createElement("div");
+	}
+	return divList;
+}
+
+function fillBg(element, fillVal) {
+	let reptStr = "no-repeat center / cover";
+	switch (fillVal) {
+		case "grass/0":
+			element.style.background = `
+			url('sprits/grass/grass0.png') ${reptStr}
+			`;
+			break;
+		case "grass/1":
+			element.style.background = `
+			url('sprits/grass/grass1.png') ${reptStr}
+			`;
+			break;
+		case "nomines/0":
+			element.style.background = `
+			url('sprits/no-mines/nomines0.png') ${reptStr}
+			`;
+			break;
+		case "nomines/1":
+			element.style.background = `
+			url('sprits/no-mines/nomines1.png') ${reptStr}
+			`;
+			break;
+		case "flags/0":
+			element.style.background = `
+			url('sprits/flags/flag0.png') ${reptStr}
+			`;
+			break;
+		case "flags/1":
+			element.style.background = `
+			url('sprits/flags/flag1.png') ${reptStr}
+			`;
+			break;
+		case "mines":
+			let randVal = (Math.floor(Math.random() * 10) % 6) + 1;
+			element.style.background = `
+			url('sprits/mines/mine${randVal}.png') ${reptStr}
+			`;
+			break;
+	}
+}
+
+// let cl = createCell(78);
+// for(let i = 0; i < cl.length; i++) {
+// 	let tileVal = `grass/${i % 2}`;
+// }
+
+function alterTile(position, rowNo) {
+	let xPos = position % rowNo;
+	let yPos = Math.floor(position / rowNo);
+
+	if (xPos % 2 ^ yPos % 2) {
+		return 1;
+	} else {
+		return 0;
+	}
+}
+
+// console.log(alterTile(14, 6))
+
+function apndCell(elementLst, rowNo) {
+	for (let i = 0; i < elementLst.length; i++) {
+		let tileVal = `grass/${alterTile(i, rowNo)}`;
+
+		fillBg(elementLst[i], tileVal);
+		root.appendChild(elementLst[i]);
+		elementLst[i].style.height = `${
+			elementLst[i].getBoundingClientRect().width
+		}px`;
+	}
+}
+
+function initGame(gridNo, rowNo) {
+	root.style.gridTemplateColumns = `repeat(${rowNo}, minmax(20px, 1fr))`;
+	let cells = createCell(gridNo);
+	apndCell(cells, rowNo);
+}
+
+initGame(10 * 10, 10);

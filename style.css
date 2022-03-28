@@ -40,5 +40,13 @@ select {
 
 .root {
 	display: grid;
+	/* grid-template-columns: repeat(6, minmax(20px, 1fr)); */
+	/* gap: 2px; */
+	width: 43vw;
+	margin: 30px auto;
+}
 
+.root div {
+	/* height: 60px; */
+	/* border: solid 2px red; */
 }
