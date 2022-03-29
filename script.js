@@ -12,7 +12,7 @@ function randAry(grdSiz, bombNo) {
 	let counter = 0;
 
 	while (bombNo > 0) {
-		if (Math.floor(Math.random() * 1000) > 800) {
+		if (Math.floor(Math.random() * 1000) > 870) {
 			ary[counter] = -1;
 			bombNo--;
 		}
@@ -130,26 +130,22 @@ function chkBdr(pos, rowNo, colNo) {
 function giveGrid(lvl) {
 	let rowNo, colNo, bombNo;
 
-	switch (+lvl) {
-		case 0:
+	switch (lvl) {
+		case "Easy":
 			rowNo = easy[0];
 			colNo = easy[1];
 			bombNo = easy[2];
 			break;
-		case 1:
+		case "Medium":
 			rowNo = medium[0];
 			colNo = medium[1];
 			bombNo = medium[2];
 			break;
-		case 2:
+		case "Hard":
 			rowNo = hard[0];
 			colNo = hard[1];
 			bombNo = hard[2];
 			break;
-		default:
-			rowNo = easy[0];
-			colNo = easy[1];
-			bombNo = easy[2];
 	}
 
 	ary = randAry(rowNo * colNo, bombNo);
@@ -158,7 +154,12 @@ function giveGrid(lvl) {
 
 // console.log(giveGrid(0),giveGrid(1),giveGrid(2))
 
+let Map; // Main maping of bombs and numbers in the grid
+let rowValue; // Value of row for any level
+let colValue;
 const root = document.querySelector(".root");
+const plyBtn = document.querySelector(".ply-btn");
+const selectBtn = document.getElementById("level-select");
 
 function createCell(cellNo) {
 	let divList = [];
@@ -246,4 +247,86 @@ function initGame(gridNo, rowNo) {
 	apndCell(cells, rowNo);
 }
 
-initGame(10 * 10, 10);
+// initGame(10 * 10, 10);
+
+function levelMap(lvl) {
+	let aryMap;
+
+	switch (lvl) {
+		case 'Easy':
+			initGame(easy[0]*easy[1],easy[0]);
+			rowValue = easy[0];
+			colValue = easy[1];
+			break;
+		case 'Medium':
+			initGame(medium[0]*medium[1],medium[0]);
+			rowValue = medium[0];
+			colValue = medium[1];
+			break;
+		case 'Hard':
+			initGame(hard[0]*hard[1],hard[0]);
+			rowValue = hard[0];
+			colValue = hard[1];
+			break;
+	} 
+	
+	return giveGrid(lvl);
+}
+
+function mapNumToBg(num, rowNo, colNo) {
+	let elms = [...root.children];
+
+	if (Map[num] < 0) {
+		fillBg(elms[num], "mines");
+	}
+	if (Map[num] > 0) {
+		fillBg(elms[num], `nomines/${alterTile(num,rowNo)}`);
+		elms[num].textContent = `${Map[num]}`;
+	}
+	if (Map[num] === 0) {
+		expandNoMine(rowNo, colNo, num);
+	}
+}
+
+function expandNoMine(rowNo, colNo, position) {
+	let xPos = position % rowNo;
+	let yPos = Math.floor(position / rowNo);
+	let elms = [...root.children];
+
+	let incX = 0;
+	while ( (Map[position + incX] >= 0) && (xPos + incX < rowNo) ) {
+		fillBg(elms[position + incX], `nomines/${alterTile(position + incX, rowNo)}`);
+		if(Map[position + incX] > 0) {
+			elms[position + incX].textContent = `${Map[position + incX]}`;
+			break;
+		} 
+		incX++;
+
+	}	
+
+	incX = 0;
+
+	while ( (Map[position - incX] >= 0) && (xPos - incX >= 0) ) {
+		fillBg(elms[position - incX], `nomines/${alterTile(position - incX, rowNo)}`);
+		if(Map[position - incX] > 0) {
+			elms[position - incX].textContent = `${Map[position - incX]}`;
+			break;
+		} 
+		incX++;
+
+	}	
+
+}
+
+plyBtn.addEventListener('click', (evt) => {
+	while (root.firstChild) {
+		root.removeChild(root.lastChild);
+	}
+
+	Map = levelMap(selectBtn.value);
+});
+
+root.addEventListener('click', (evt) => {
+	let position = [...root.children].indexOf(evt.target);
+	mapNumToBg(position, rowValue, colValue);
+});

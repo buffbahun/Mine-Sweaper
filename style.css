@@ -49,4 +49,11 @@ select {
 .root div {
 	/* height: 60px; */
 	/* border: solid 2px red; */
+	display: flex;
+	color: white;
+	font-size: 2em;
+	/* text-align: center; */
+	/* vertical-align: bottom; */
+	justify-content: center;
+	align-items: center;
 }
