@@ -497,4 +497,5 @@ root.addEventListener('click', (evt) => {
 	}
 });
 
+alert("Press <ctrl> + mouse left click for toggling flag.");
 restartGame();
