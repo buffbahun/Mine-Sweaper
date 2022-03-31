@@ -158,10 +158,12 @@ let Map; // Main maping of bombs and numbers in the grid
 let rowValue; // Value of row for any level
 let colValue;
 let flagValue;
+let flagMap = [];
 let clicked = [];
 const root = document.querySelector(".root");
 const plyBtn = document.querySelector(".ply-btn");
 const selectBtn = document.getElementById("level-select");
+const flgShow = document.querySelector(".flg-show span")
 
 function createCell(cellNo) {
 	let divList = [];
@@ -206,10 +208,8 @@ function fillBg(element, fillVal) {
 			break;
 		case "mines":
 			let randVal = (Math.floor(Math.random() * 10) % 6) + 1;
-			element.style.background = `
-			url('sprits/mines/mine${randVal}.png') ${reptStr}
-			`;
-			break;
+			element.style.background = `url('sprits/mines/mine${randVal}.png') ${reptStr}`;
+			
 	}
 }
 
@@ -282,7 +282,8 @@ function mapNumToBg(num, rowNo, colNo) {
 	let elms = [...root.children];
 
 	if (Map[num] < 0) {
-		fillBg(elms[num], "mines");
+		// console.log('num:'+ num)
+		fillBg(elms[num], `mines`);
 	}
 	if (Map[num] > 0) {
 		fillBg(elms[num], `nomines/${alterTile(num,rowNo)}`);
@@ -294,21 +295,25 @@ function mapNumToBg(num, rowNo, colNo) {
 }
 
 function putFlag(num, rowNo, colNo) {
-	if((flagValue < 1) && (clicked.indexOf(num) < 0)) return -1;
+	if((flagValue < 1) && (flagMap.indexOf(num) < 0)) return -1;
 
 	let elms = [...root.children];
-	if(clicked.indexOf(num) >= 0) {
+	if(flagMap.indexOf(num) >= 0) {
 		flagValue++;
 		clicked.splice(clicked.indexOf(num),1);
+		flagMap.splice(flagMap.indexOf(num),1);
 		// console.log(clicked.indexOf(num),clicked);
 		fillBg(elms[num], `grass/${alterTile(num,rowNo)}`)
+		flgShow.textContent = `${flagValue}`;
 		return 0;
 	}
 
-	if(clicked.indexOf(num) < 0) {
+	if(flagMap.indexOf(num) < 0) {
 		flagValue--;
 		clicked.push(num);
+		flagMap.push(num);
 		fillBg(elms[num], `flags/${alterTile(num,rowNo)}`)
+		flgShow.textContent = `${flagValue}`;
 		return 1;
 	}
 
@@ -410,8 +415,38 @@ function restartGame() {
 	}
 
 	clicked = [];
+	flagMap = [];
 	Map = levelMap(selectBtn.value);
-	// console.log(Map);
+	flgShow.textContent = `${flagValue}`;
+}
+
+function showBomb(num) {
+	console.log("hehe",num);
+	mapNumToBg(num, rowValue, colValue);
+	for (let i = 0; i < Map.length; i++) {
+		if(Map[i] < 0) {
+			mapNumToBg(i,rowValue,colValue);
+		}
+	}
+}
+
+function spaceToPlay(pos) {
+	let tmpSet;
+	for (let i = 0; i < Map.length; i++) {		
+		if(Map[pos+i] === 0) {
+			clicked.push(...twoDScan(pos+i));
+			tmpSet = new Set(clicked);
+			clicked = [...tmpSet];
+			return 1;
+		}
+
+		if(Map[pos-i] === 0) {
+			clicked.push(...twoDScan(pos-i));
+			tmpSet = new Set(clicked);
+			clicked = [...tmpSet];
+			return 1;
+		}
+	}
 }
 
 plyBtn.addEventListener('click', (evt) => {
@@ -421,19 +456,29 @@ plyBtn.addEventListener('click', (evt) => {
 root.addEventListener('click', (evt) => {
 	let position = [...root.children].indexOf(evt.target);
 
-	if (clicked.indexOf(position) >= 0 ) {
-		console.log(position);
+	if(clicked.length < 1) {
+		spaceToPlay(position);
 		return 0;
 	}
 
-	// if(evt.ctrlKey) {
-	// 	putFlag(position, rowValue, colValue);	
-	// 	return -1;
-	// }
+	if (evt.ctrlKey) {
+		putFlag(position, rowValue, colValue);
+		return 0;
+	}
+
+	if (clicked.indexOf(position) >= 0 ) {
+		// console.log(position);
+
+		return 0;
+	}
+
 
 	if (Map[position] < 0) {
-		alert("Opps..., clicked on a bomb!");
-		restartGame();
+		showBomb(position);
+		setTimeout(() => {
+			alert("Opps..., clicked on a bomb!");
+			restartGame();
+		},200);
 		return -1;
 	}
 
@@ -445,4 +490,11 @@ root.addEventListener('click', (evt) => {
 	}
 	mapNumToBg(position, rowValue, colValue);
 	clicked.push(position);
+	// console.log(clicked.length);
+	if (clicked.length >= rowValue * colValue) {
+		alert("You completed the game!");
+		restartGame();
+	}
 });
+
+restartGame();
